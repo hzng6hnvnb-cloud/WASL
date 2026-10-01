@@ -8,6 +8,9 @@
     <title>وَصْل | WASL</title>
 
     <link rel="stylesheet" href="style.css">
+
+    <!-- مكتبة الاتصال -->
+    <script src="/socket.io/socket.io.js"></script>
 </head>
 
 <body>
@@ -17,7 +20,6 @@
     <!-- =========================
          الصفحة الرئيسية
     ========================== -->
-
     <section id="home" class="screen active">
 
         <div class="glow glow-one"></div>
@@ -55,12 +57,10 @@
                 ● اتصال آمن وسريع
             </div>
 
-
             <h2>
                 اجمع أصحابك<br>
                 <span>في مكان واحد.</span>
             </h2>
-
 
             <p>
                 ادخل رقم الغرفة وابدأ المكالمة بالصوت والكاميرا
@@ -118,18 +118,13 @@
     <!-- =========================
          إنشاء غرفة
     ========================== -->
-
-    <div
-        id="createModal"
-        class="modal"
-    >
+    <div id="createModal" class="modal">
 
         <div class="modal-card">
 
             <button
                 class="close"
                 onclick="closeModals()"
-                aria-label="إغلاق"
             >
                 ×
             </button>
@@ -158,9 +153,9 @@
             <input
                 id="createName"
                 type="text"
-                placeholder="اكتب اسمك"
-                autocomplete="name"
                 maxlength="30"
+                autocomplete="name"
+                placeholder="اكتب اسمك"
             >
 
 
@@ -180,18 +175,13 @@
     <!-- =========================
          دخول غرفة
     ========================== -->
-
-    <div
-        id="joinModal"
-        class="modal"
-    >
+    <div id="joinModal" class="modal">
 
         <div class="modal-card">
 
             <button
                 class="close"
                 onclick="closeModals()"
-                aria-label="إغلاق"
             >
                 ×
             </button>
@@ -220,9 +210,9 @@
             <input
                 id="joinName"
                 type="text"
-                placeholder="اكتب اسمك"
-                autocomplete="name"
                 maxlength="30"
+                autocomplete="name"
+                placeholder="اكتب اسمك"
             >
 
 
@@ -237,9 +227,9 @@
                 type="text"
                 maxlength="4"
                 inputmode="numeric"
-                pattern="[0-9]*"
-                placeholder="0000"
+                pattern="[0-9]{4}"
                 autocomplete="off"
+                placeholder="0000"
             >
 
 
@@ -259,7 +249,6 @@
     <!-- =========================
          شاشة الغرفة
     ========================== -->
-
     <section
         id="room"
         class="screen room-screen"
@@ -273,7 +262,7 @@
                 <button
                     class="back-button"
                     onclick="leaveRoom()"
-                    aria-label="العودة"
+                    aria-label="رجوع"
                 >
                     ←
                 </button>
@@ -349,7 +338,7 @@
 
                     <i></i>
 
-                    <span>
+                    <span id="connectionText">
                         متصل
                     </span>
 
@@ -359,7 +348,9 @@
 
 
 
-            <!-- المشاركون -->
+            <!-- =========================
+                 المشاركون
+            ========================== -->
 
             <div
                 id="participants"
@@ -367,7 +358,7 @@
             >
 
 
-                <!-- المستخدم المحلي -->
+                <!-- فيديو المستخدم المحلي -->
 
                 <div
                     class="person-card local-card"
@@ -437,7 +428,9 @@
 
 
 
-            <!-- رسالة انتظار المشاركين -->
+            <!-- =========================
+                 رسالة الانتظار
+            ========================== -->
 
             <div
                 class="empty-message"
@@ -468,7 +461,6 @@
 
             </div>
 
-
         </main>
 
 
@@ -484,7 +476,6 @@
                 id="micButton"
                 class="control"
                 onclick="toggleMic()"
-                aria-label="كتم الصوت"
             >
 
                 <span>
@@ -503,7 +494,6 @@
                 id="cameraButton"
                 class="control"
                 onclick="toggleCamera()"
-                aria-label="الكاميرا"
             >
 
                 <span>
@@ -522,7 +512,6 @@
                 id="screenShareButton"
                 class="control screen-share"
                 onclick="shareScreen()"
-                aria-label="مشاركة الشاشة"
             >
 
                 <span>
@@ -538,29 +527,9 @@
 
 
             <button
-                id="roomSettingsButton"
-                class="control"
-                onclick="openSettings()"
-                aria-label="الإعدادات"
-            >
-
-                <span>
-                    ⚙
-                </span>
-
-                <small>
-                    الإعدادات
-                </small>
-
-            </button>
-
-
-
-            <button
                 id="leaveButton"
                 class="control danger"
                 onclick="leaveRoom()"
-                aria-label="مغادرة"
             >
 
                 <span>
@@ -572,7 +541,6 @@
                 </small>
 
             </button>
-
 
         </footer>
 
@@ -595,10 +563,10 @@
             <button
                 class="close"
                 onclick="closeSettings()"
-                aria-label="إغلاق"
             >
                 ×
             </button>
+
 
 
             <div class="settings-heading">
@@ -606,6 +574,7 @@
                 <div class="modal-icon">
                     ⚙
                 </div>
+
 
                 <div>
 
@@ -788,9 +757,7 @@
 
                 </button>
 
-
             </div>
-
 
         </div>
 
@@ -799,14 +766,12 @@
 
 
     <!-- =========================
-         التنبيهات
+         التنبيه
     ========================== -->
 
     <div
         id="toast"
         class="toast"
-        role="status"
-        aria-live="polite"
     >
 
         <span>
@@ -819,26 +784,12 @@
 
     </div>
 
-
 </div>
 
 
 
-<!-- =========================
-     Socket.IO
-     الاتصال بالخادم
-========================== -->
-
-<script src="/socket.io/socket.io.js"></script>
-
-
-<!-- =========================
-     JavaScript
-     تشغيل الموقع
-========================== -->
-
+<!-- ملف وظائف الموقع -->
 <script src="app.js"></script>
-
 
 </body>
 </html>
