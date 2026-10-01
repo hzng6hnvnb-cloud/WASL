@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>وَصْل | WASL</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- الصفحة الرئيسية -->
+    <section id="home" class="screen active">
+        <div class="glow glow-one"></div>
+        <div class="glow glow-two"></div>
+
+        <header class="topbar">
+            <div class="brand">
+                <div class="brand-icon">و</div>
+                <div>
+                    <h1>وَصْل</h1>
+                    <span>تواصل بلا حدود</span>
+                </div>
+            </div>
+
+            <button class="icon-button" onclick="openSettings()">⚙</button>
+        </header>
+
+        <main class="hero">
+            <div class="hero-badge">
+                ● اتصال آمن وسريع
+            </div>
+
+            <h2>
+                اجمع أصحابك<br>
+                <span>في مكان واحد.</span>
+            </h2>
+
+            <p>
+                ادخل رقم الغرفة وابدأ المكالمة بالصوت والكاميرا
+                ومشاركة الشاشة.
+            </p>
+
+            <div class="home-actions">
+                <button class="primary-button" onclick="showCreate()">
+                    إنشاء غرفة
+                    <span>＋</span>
+                </button>
+
+                <button class="secondary-button" onclick="showJoin()">
+                    دخول غرفة
+                    <span>→</span>
+                </button>
+            </div>
+
+            <div class="features">
+                <div>
+                    <b>🎙</b>
+                    <span>صوت</span>
+                </div>
+
+                <div>
+                    <b>📹</b>
+                    <span>كاميرا</span>
+                </div>
+
+                <div>
+                    <b>🖥</b>
+                    <span>مشاركة الشاشة</span>
+                </div>
+            </div>
+        </main>
+    </section>
+
+
+    <!-- إنشاء غرفة -->
+    <div id="createModal" class="modal">
+        <div class="modal-card">
+            <button class="close" onclick="closeModals()">×</button>
+
+            <div class="modal-icon">✦</div>
+
+            <h3>إنشاء غرفة</h3>
+            <p>أنشئ غرفة جديدة وشارك الرقم مع أصحابك.</p>
+
+            <label>اسمك</label>
+            <input id="createName" type="text" placeholder="اكتب اسمك">
+
+            <button class="primary-button full" onclick="createRoom()">
+                إنشاء الغرفة
+            </button>
+        </div>
+    </div>
+
+
+    <!-- دخول غرفة -->
+    <div id="joinModal" class="modal">
+        <div class="modal-card">
+            <button class="close" onclick="closeModals()">×</button>
+
+            <div class="modal-icon">↗</div>
+
+            <h3>دخول غرفة</h3>
+            <p>أدخل رقم الغرفة المكون من 4 أرقام.</p>
+
+            <label>اسمك</label>
+            <input id="joinName" type="text" placeholder="اكتب اسمك">
+
+            <label>رقم الغرفة</label>
+            <input
+                id="roomCodeInput"
+                class="room-input"
+                type="text"
+                maxlength="4"
+                inputmode="numeric"
+                placeholder="0000"
+            >
+
+            <button class="primary-button full" onclick="joinRoom()">
+                دخول الغرفة
+            </button>
+        </div>
+    </div>
+
+
+    <!-- شاشة الغرفة -->
+    <section id="room" class="screen room-screen">
+
+        <header class="room-topbar">
+
+            <div class="room-brand">
+                <button class="back-button" onclick="leaveRoom()">←</button>
+
+                <div>
+                    <strong>وَصْل</strong>
+                    <span id="roomStatus">الغرفة جاهزة</span>
+                </div>
+            </div>
+
+            <div class="room-code-box">
+                <span>رقم الغرفة</span>
+                <strong id="roomCode">0000</strong>
+                <button onclick="copyRoomCode()">نسخ</button>
+            </div>
+
+            <button class="icon-button" onclick="openSettings()">⚙</button>
+
+        </header>
+
+
+        <main class="room-content">
+
+            <div class="room-title">
+                <div>
+                    <span class="small-label">غرفة الأصدقاء</span>
+                    <h2>المكالمة الجماعية</h2>
+                </div>
+
+                <div class="connection">
+                    <i></i>
+                    متصل
+                </div>
+            </div>
+
+
+            <div id="participants" class="participants">
+
+                <div class="person-card local-card">
+
+                    <div class="video-placeholder">
+                        <div class="avatar">أ</div>
+                        <div class="camera-off">الكاميرا متوقفة</div>
+                    </div>
+
+                    <div class="person-info">
+                        <div>
+                            <strong id="localName">أنت</strong>
+                            <span>أنت</span>
+                        </div>
+
+                        <div class="person-icons">
+                            <span id="localMicIcon">🎙</span>
+                            <span>📹</span>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="empty-message" id="emptyMessage">
+                <div class="empty-icon">♧</div>
+                <h3>بانتظار أصحابك</h3>
+                <p>ارسل رقم الغرفة لهم وخلهم يدخلون.</p>
+
+                <button class="secondary-button" onclick="copyRoomCode()">
+                    نسخ رقم الغرفة
+                </button>
+            </div>
+
+        </main>
+
+
+        <footer class="call-controls">
+
+            <button id="micButton" class="control" onclick="toggleMic()">
+                <span>🎙</span>
+                <small>كتم الصوت</small>
+            </button>
+
+            <button id="cameraButton" class="control" onclick="toggleCamera()">
+                <span>📹</span>
+                <small>الكاميرا</small>
+            </button>
+
+            <button class="control screen-share" onclick="shareScreen()">
+                <span>🖥</span>
+                <small>مشاركة الشاشة</small>
+            </button>
+
+            <button class="control danger" onclick="leaveRoom()">
+                <span>☎</span>
+                <small>مغادرة</small>
+            </button>
+
+        </footer>
+
+    </section>
+
+
+    <!-- الإعدادات -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-card settings-card">
+
+            <button class="close" onclick="closeSettings()">×</button>
+
+            <div class="settings-heading">
+                <div class="modal-icon">⚙</div>
+                <div>
+                    <h3>الإعدادات</h3>
+                    <p>خصص وَصْل على طريقتك</p>
+                </div>
+            </div>
+
+
+            <div class="setting-section">
+
+                <span class="setting-title">المظهر</span>
+
+                <div class="choice-grid">
+
+                    <button
+                        class="choice active"
+                        id="darkChoice"
+                        onclick="setTheme('dark')"
+                    >
+                        🌙
+                        <span>داكن</span>
+                    </button>
+
+                    <button
+                        class="choice"
+                        id="lightChoice"
+                        onclick="setTheme('light')"
+                    >
+                        ☀️
+                        <span>فاتح</span>
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="setting-section">
+
+                <span class="setting-title">اللغة</span>
+
+                <div class="choice-grid">
+
+                    <button
+                        class="choice active"
+                        id="arabicChoice"
+                        onclick="setLanguage('ar')"
+                    >
+                        🇸🇦
+                        <span>العربية</span>
+                    </button>
+
+                    <button
+                        class="choice"
+                        id="englishChoice"
+                        onclick="setLanguage('en')"
+                    >
+                        🇬🇧
+                        <span>English</span>
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="setting-section">
+
+                <span class="setting-title">الصوت والكاميرا</span>
+
+                <button class="device-row" onclick="testMicrophone()">
+                    <span>🎙</span>
+                    <div>
+                        <strong>اختبار المايك</strong>
+                        <small>اضغط للتجربة</small>
+                    </div>
+                    <b>›</b>
+                </button>
+
+                <button class="device-row" onclick="testCamera()">
+                    <span>📹</span>
+                    <div>
+                        <strong>اختبار الكاميرا</strong>
+                        <small>اضغط للتجربة</small>
+                    </div>
+                    <b>›</b>
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- تنبيه -->
+    <div id="toast" class="toast">
+        <span>✓</span>
+        <p id="toastText">تم</p>
+    </div>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
