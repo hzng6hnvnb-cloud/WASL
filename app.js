@@ -1,3 +1,8 @@
+// ======================================================
+// وَصْل | WASL
+// app.js
+// ======================================================
+
 let currentRoom = null;
 let currentName = "أنت";
 
@@ -15,17 +20,16 @@ let localStream = null;
 let screenStream = null;
 
 const peers = {};
-const remoteStreams = {};
+const remoteUsers = {};
 
 
-// ==============================
+// ======================================================
 // الترجمة
-// ==============================
+// ======================================================
 
 const translations = {
 
     ar: {
-
         tagline: "تواصل بلا حدود",
         secure: "● اتصال آمن وسريع",
 
@@ -78,7 +82,6 @@ const translations = {
         cameraButton: "الكاميرا",
 
         shareScreen: "مشاركة الشاشة",
-
         leave: "مغادرة",
 
         settings: "الإعدادات",
@@ -97,7 +100,6 @@ const translations = {
 
         micTest: "اختبار المايك",
         cameraTest: "اختبار الكاميرا",
-
         pressTest: "اضغط للتجربة",
 
         roomCreated: "تم إنشاء الغرفة",
@@ -158,12 +160,13 @@ const translations = {
             "دخل صديق إلى الغرفة",
 
         friendLeft:
-            "غادر صديق الغرفة"
+            "غادر صديق الغرفة",
+
+        serverError:
+            "تعذر الاتصال بالسيرفر"
     },
 
-
     en: {
-
         tagline: "Connect without limits",
         secure: "● Secure and fast connection",
 
@@ -216,7 +219,6 @@ const translations = {
         cameraButton: "Camera",
 
         shareScreen: "Share screen",
-
         leave: "Leave",
 
         settings: "Settings",
@@ -235,7 +237,6 @@ const translations = {
 
         micTest: "Microphone test",
         cameraTest: "Camera test",
-
         pressTest: "Tap to test",
 
         roomCreated: "Room created",
@@ -305,29 +306,27 @@ const translations = {
             "A friend joined the room",
 
         friendLeft:
-            "A friend left the room"
+            "A friend left the room",
+
+        serverError:
+            "Could not connect to the server"
     }
 };
 
 
 function t(key) {
-
-    return translations[currentLanguage][key] || key;
-
+    return translations[currentLanguage]?.[key] || key;
 }
 
 
-// ==============================
-// إشعار
-// ==============================
+// ======================================================
+// الإشعارات
+// ======================================================
 
 function showToast(message) {
 
-    const toast =
-        document.getElementById("toast");
-
-    const text =
-        document.getElementById("toastText");
+    const toast = document.getElementById("toast");
+    const text = document.getElementById("toastText");
 
     if (!toast || !text) return;
 
@@ -336,29 +335,24 @@ function showToast(message) {
     toast.classList.add("show");
 
     setTimeout(() => {
-
         toast.classList.remove("show");
-
     }, 2200);
 }
 
 
-// ==============================
+// ======================================================
 // التنقل
-// ==============================
+// ======================================================
 
 function openScreen(id) {
 
     document
         .querySelectorAll(".screen")
         .forEach(screen => {
-
             screen.classList.remove("active");
-
         });
 
-    const target =
-        document.getElementById(id);
+    const target = document.getElementById(id);
 
     if (target) {
         target.classList.add("active");
@@ -366,16 +360,15 @@ function openScreen(id) {
 }
 
 
-// ==============================
+// ======================================================
 // النوافذ
-// ==============================
+// ======================================================
 
 function showCreate() {
 
     document
         .getElementById("createModal")
-        .classList.add("show");
-
+        ?.classList.add("show");
 }
 
 
@@ -383,8 +376,7 @@ function showJoin() {
 
     document
         .getElementById("joinModal")
-        .classList.add("show");
-
+        ?.classList.add("show");
 }
 
 
@@ -393,11 +385,8 @@ function closeModals() {
     document
         .querySelectorAll(".modal")
         .forEach(modal => {
-
             modal.classList.remove("show");
-
         });
-
 }
 
 
@@ -405,8 +394,7 @@ function openSettings() {
 
     document
         .getElementById("settingsModal")
-        .classList.add("show");
-
+        ?.classList.add("show");
 }
 
 
@@ -414,160 +402,176 @@ function closeSettings() {
 
     document
         .getElementById("settingsModal")
-        .classList.remove("show");
-
+        ?.classList.remove("show");
 }
 
 
-// ==============================
-// رقم الغرفة
-// ==============================
+// ======================================================
+// إنشاء رقم غرفة
+// ======================================================
 
 function generateRoomCode() {
 
     return Math.floor(
         1000 + Math.random() * 9000
     ).toString();
-
 }
 
 
-// ==============================
+// ======================================================
 // إنشاء غرفة
-// ==============================
+// ======================================================
 
 async function createRoom() {
 
+    const input =
+        document.getElementById("createName");
+
     const name =
-        document
-            .getElementById("createName")
-            .value
-            .trim();
+        input?.value.trim();
 
     if (!name) {
-
         showToast(t("enterName"));
-
         return;
     }
 
     currentName = name;
+    currentRoom = generateRoomCode();
 
-    currentRoom =
-        generateRoomCode();
-
-    enterRoom();
+    await enterRoom();
 
     showToast(t("roomCreated"));
-
 }
 
 
-// ==============================
+// ======================================================
 // دخول غرفة
-// ==============================
+// ======================================================
 
-function joinRoom() {
+async function joinRoom() {
 
     const name =
         document
             .getElementById("joinName")
-            .value
-            .trim();
+            ?.value.trim();
 
     const code =
         document
             .getElementById("roomCodeInput")
-            .value
-            .trim();
+            ?.value.trim();
 
     if (!name) {
-
         showToast(t("enterName"));
-
         return;
     }
 
     if (!/^\d{4}$/.test(code)) {
-
         showToast(t("invalidCode"));
-
         return;
     }
 
     currentName = name;
-
     currentRoom = code;
 
-    enterRoom();
+    await enterRoom();
 
     showToast(t("roomJoined"));
-
 }
 
 
-// ==============================
-// الدخول الحقيقي للغرفة
-// ==============================
+// ======================================================
+// دخول الغرفة
+// ======================================================
 
 async function enterRoom() {
 
     closeModals();
 
-    document
-        .getElementById("roomCode")
-        .textContent = currentRoom;
+    const roomCode =
+        document.getElementById("roomCode");
 
-    document
-        .getElementById("localName")
-        .textContent = currentName;
+    const localName =
+        document.getElementById("localName");
+
+    const status =
+        document.getElementById("roomStatus");
+
+    if (roomCode) {
+        roomCode.textContent = currentRoom;
+    }
+
+    if (localName) {
+        localName.textContent = currentName;
+    }
 
     openScreen("room");
 
-    document
-        .getElementById("roomStatus")
-        .textContent = t("waiting");
+    if (status) {
+        status.textContent = t("waiting");
+    }
 
-    connectToServer();
-
+    await connectToServer();
 }
 
 
-// ==============================
+// ======================================================
 // الاتصال بالسيرفر
-// ==============================
+// ======================================================
 
-function connectToServer() {
+async function connectToServer() {
+
+    if (typeof io !== "function") {
+
+        console.error(
+            "Socket.IO غير موجود"
+        );
+
+        showToast(t("serverError"));
+
+        return;
+    }
 
     if (socket) {
-
         socket.disconnect();
-
+        socket = null;
     }
 
     socket = io();
 
+
     socket.on("connect", async () => {
 
         console.log(
-            "Connected to WASL server"
+            "تم الاتصال بالسيرفر:",
+            socket.id
         );
 
         socket.emit("join-room", {
-
             room: currentRoom,
-
             name: currentName
-
         });
 
-        // تشغيل المايك تلقائيًا
         await startMicrophone();
+    });
 
+
+    socket.on("connect_error", error => {
+
+        console.error(
+            "Server connection error:",
+            error
+        );
+
+        showToast(t("serverError"));
     });
 
 
     socket.on("room-users", async users => {
+
+        console.log(
+            "الأشخاص الموجودون:",
+            users
+        );
 
         for (const user of users) {
 
@@ -576,13 +580,18 @@ function connectToServer() {
                 user.name,
                 true
             );
-
         }
 
+        updateRoomStatus();
     });
 
 
     socket.on("user-joined", async user => {
+
+        console.log(
+            "دخل شخص:",
+            user
+        );
 
         showToast(t("friendJoined"));
 
@@ -592,27 +601,22 @@ function connectToServer() {
             true
         );
 
+        updateRoomStatus();
     });
 
 
     socket.on("offer", async data => {
-
         await handleOffer(data);
-
     });
 
 
     socket.on("answer", async data => {
-
         await handleAnswer(data);
-
     });
 
 
     socket.on("ice-candidate", async data => {
-
         await handleIceCandidate(data);
-
     });
 
 
@@ -622,14 +626,32 @@ function connectToServer() {
 
         showToast(t("friendLeft"));
 
+        updateRoomStatus();
     });
 
+
+    socket.on("screen-share-started", data => {
+
+        console.log(
+            "بدأ مشاركة الشاشة:",
+            data
+        );
+    });
+
+
+    socket.on("screen-share-stopped", data => {
+
+        console.log(
+            "انتهت مشاركة الشاشة:",
+            data
+        );
+    });
 }
 
 
-// ==============================
-// WebRTC
-// ==============================
+// ======================================================
+// إعداد WebRTC
+// ======================================================
 
 const rtcConfig = {
 
@@ -644,33 +666,40 @@ const rtcConfig = {
         }
 
     ]
-
 };
 
+
+// ======================================================
+// إنشاء اتصال مع شخص
+// ======================================================
 
 async function createPeerConnection(
     userId,
     userName,
-    createOffer
+    createOffer = false
 ) {
 
     if (peers[userId]) {
-
         return peers[userId];
-
     }
-
 
     const pc =
         new RTCPeerConnection(
             rtcConfig
         );
 
-
     peers[userId] = pc;
 
+    remoteUsers[userId] = {
+        name: userName || "صديق",
+        stream: null
+    };
 
-    // إضافة الصوت والكاميرا
+
+    // ------------------------------------------
+    // إضافة التراكات الموجودة
+    // ------------------------------------------
+
     if (localStream) {
 
         localStream
@@ -683,153 +712,201 @@ async function createPeerConnection(
                 );
 
             });
-
     }
 
+
+    // ------------------------------------------
+    // ICE
+    // ------------------------------------------
 
     pc.onicecandidate = event => {
 
         if (!event.candidate) return;
 
+        if (!socket) return;
+
         socket.emit(
             "ice-candidate",
             {
-
                 to: userId,
-
-                candidate:
-                    event.candidate
-
+                candidate: event.candidate
             }
         );
-
     };
 
+
+    // ------------------------------------------
+    // استقبال فيديو/صوت
+    // ------------------------------------------
 
     pc.ontrack = event => {
 
-        const stream =
-            event.streams[0];
+        let stream =
+            event.streams?.[0];
 
-        if (!stream) return;
+        if (!stream) {
 
-        remoteStreams[userId] =
-            stream;
+            stream =
+                remoteUsers[userId]?.stream ||
+                new MediaStream();
+
+            if (
+                !stream
+                    .getTracks()
+                    .includes(event.track)
+            ) {
+
+                stream.addTrack(
+                    event.track
+                );
+            }
+        }
+
+        if (!remoteUsers[userId]) {
+
+            remoteUsers[userId] = {
+                name: userName || "صديق",
+                stream
+            };
+
+        } else {
+
+            remoteUsers[userId].stream =
+                stream;
+        }
 
         showRemoteUser(
             userId,
-            userName,
+            remoteUsers[userId].name,
             stream
         );
-
     };
 
+
+    // ------------------------------------------
+    // حالة الاتصال
+    // ------------------------------------------
 
     pc.onconnectionstatechange = () => {
 
         console.log(
+            "حالة الاتصال:",
             userId,
             pc.connectionState
         );
 
         if (
-            pc.connectionState ===
-            "failed"
+            pc.connectionState === "failed"
         ) {
 
-            pc.restartIce();
-
+            try {
+                pc.restartIce();
+            } catch {}
         }
 
+        if (
+            pc.connectionState === "closed" ||
+            pc.connectionState === "disconnected"
+        ) {
+
+            updateRoomStatus();
+        }
     };
 
 
+    // ------------------------------------------
+    // إنشاء العرض
+    // ------------------------------------------
+
     if (createOffer) {
 
-        const offer =
-            await pc.createOffer();
+        try {
 
-        await pc.setLocalDescription(
-            offer
-        );
+            const offer =
+                await pc.createOffer();
 
-        socket.emit(
-            "offer",
-            {
+            await pc.setLocalDescription(
+                offer
+            );
 
-                to: userId,
+            socket.emit(
+                "offer",
+                {
+                    to: userId,
+                    offer: pc.localDescription
+                }
+            );
 
-                offer:
-                    pc.localDescription
+        } catch (error) {
 
-            }
-        );
-
+            console.error(
+                "Offer error:",
+                error
+            );
+        }
     }
 
-
     return pc;
-
 }
 
 
-// ==============================
-// استقبال العرض
-// ==============================
+// ======================================================
+// استقبال Offer
+// ======================================================
 
 async function handleOffer(data) {
 
-    const userId =
-        data.from;
+    const userId = data.from;
 
-    let pc =
-        peers[userId];
+    let pc = peers[userId];
 
     if (!pc) {
 
         pc =
             await createPeerConnection(
                 userId,
-                "صديق",
+                data.name || "صديق",
                 false
             );
-
     }
 
 
-    await pc.setRemoteDescription(
-        new RTCSessionDescription(
-            data.offer
-        )
-    );
+    try {
 
+        await pc.setRemoteDescription(
+            new RTCSessionDescription(
+                data.offer
+            )
+        );
 
-    const answer =
-        await pc.createAnswer();
+        const answer =
+            await pc.createAnswer();
 
-    await pc.setLocalDescription(
-        answer
-    );
+        await pc.setLocalDescription(
+            answer
+        );
 
+        socket.emit(
+            "answer",
+            {
+                to: userId,
+                answer: pc.localDescription
+            }
+        );
 
-    socket.emit(
-        "answer",
-        {
+    } catch (error) {
 
-            to: userId,
-
-            answer:
-                pc.localDescription
-
-        }
-    );
-
+        console.error(
+            "Offer handling error:",
+            error
+        );
+    }
 }
 
 
-// ==============================
-// استقبال الجواب
-// ==============================
+// ======================================================
+// استقبال Answer
+// ======================================================
 
 async function handleAnswer(data) {
 
@@ -838,20 +915,27 @@ async function handleAnswer(data) {
 
     if (!pc) return;
 
-    await pc.setRemoteDescription(
+    try {
 
-        new RTCSessionDescription(
-            data.answer
-        )
+        await pc.setRemoteDescription(
+            new RTCSessionDescription(
+                data.answer
+            )
+        );
 
-    );
+    } catch (error) {
 
+        console.error(
+            "Answer error:",
+            error
+        );
+    }
 }
 
 
-// ==============================
-// ICE
-// ==============================
+// ======================================================
+// استقبال ICE
+// ======================================================
 
 async function handleIceCandidate(data) {
 
@@ -870,88 +954,87 @@ async function handleIceCandidate(data) {
 
     } catch (error) {
 
-        console.log(
-            "ICE error",
+        console.error(
+            "ICE error:",
             error
         );
-
     }
-
 }
 
 
-// ==============================
-// المايك الحقيقي
-// ==============================
+// ======================================================
+// تشغيل المايك
+// ======================================================
 
 async function startMicrophone() {
 
-    if (!navigator.mediaDevices) {
+    if (
+        !navigator.mediaDevices ||
+        !navigator.mediaDevices.getUserMedia
+    ) {
 
         showToast(t("micPermission"));
 
         return;
-
     }
 
 
     try {
 
-        if (!localStream) {
-
-            localStream =
-                new MediaStream();
-
-        }
-
-
         const stream =
             await navigator.mediaDevices
                 .getUserMedia({
-
                     audio: true,
-
                     video: false
-
                 });
 
 
-        stream
-            .getAudioTracks()
-            .forEach(track => {
+        if (!localStream) {
+            localStream =
+                new MediaStream();
+        }
 
-                localStream.addTrack(
-                    track
-                );
 
-            });
+        const audioTracks =
+            stream.getAudioTracks();
+
+
+        audioTracks.forEach(track => {
+
+            localStream.addTrack(track);
+
+            Object.values(peers)
+                .forEach(pc => {
+
+                    const exists =
+                        pc.getSenders()
+                            .some(
+                                sender =>
+                                    sender.track &&
+                                    sender.track.kind === "audio"
+                            );
+
+                    if (!exists) {
+
+                        pc.addTrack(
+                            track,
+                            localStream
+                        );
+                    }
+                });
+        });
 
 
         micEnabled = true;
 
         updateMicButton();
 
-        // إضافة المايك للاتصالات الموجودة
-        Object.values(peers)
-            .forEach(pc => {
-
-                stream
-                    .getAudioTracks()
-                    .forEach(track => {
-
-                        pc.addTrack(
-                            track,
-                            localStream
-                        );
-
-                    });
-
-            });
-
-
     } catch (error) {
 
-        console.log(error);
+        console.error(
+            "Microphone error:",
+            error
+        );
 
         micEnabled = false;
 
@@ -960,15 +1043,13 @@ async function startMicrophone() {
         showToast(
             t("micPermission")
         );
-
     }
-
 }
 
 
-// ==============================
-// كتم المايك
-// ==============================
+// ======================================================
+// كتم / فتح المايك
+// ======================================================
 
 function toggleMic() {
 
@@ -984,9 +1065,7 @@ function toggleMic() {
 
                 track.enabled =
                     micEnabled;
-
             });
-
     }
 
 
@@ -994,13 +1073,10 @@ function toggleMic() {
 
 
     showToast(
-
         micEnabled
             ? t("micOpened")
             : t("micMuted")
-
     );
-
 }
 
 
@@ -1018,17 +1094,13 @@ function updateMicButton() {
 
     if (!button) return;
 
+    const small =
+        button.querySelector("small");
+
 
     if (micEnabled) {
 
-        button.classList.remove(
-            "off"
-        );
-
-        const small =
-            button.querySelector(
-                "small"
-            );
+        button.classList.remove("off");
 
         if (small) {
             small.textContent =
@@ -1042,14 +1114,7 @@ function updateMicButton() {
 
     } else {
 
-        button.classList.add(
-            "off"
-        );
-
-        const small =
-            button.querySelector(
-                "small"
-            );
+        button.classList.add("off");
 
         if (small) {
             small.textContent =
@@ -1060,15 +1125,13 @@ function updateMicButton() {
             icon.textContent =
                 "🔇";
         }
-
     }
-
 }
 
 
-// ==============================
+// ======================================================
 // الكاميرا
-// ==============================
+// ======================================================
 
 async function toggleCamera() {
 
@@ -1077,21 +1140,43 @@ async function toggleCamera() {
         stopCamera();
 
         return;
-
     }
 
     await startCamera(
         cameraFacing
     );
-
 }
 
 
 async function startCamera(
-    facingMode
+    facingMode = "user"
 ) {
 
+    if (
+        !navigator.mediaDevices ||
+        !navigator.mediaDevices.getUserMedia
+    ) {
+
+        showToast(
+            t("cameraPermission")
+        );
+
+        return;
+    }
+
+
     try {
+
+        // إيقاف الكاميرا القديمة
+        if (cameraStream) {
+
+            cameraStream
+                .getTracks()
+                .forEach(track =>
+                    track.stop()
+                );
+        }
+
 
         const stream =
             await navigator.mediaDevices
@@ -1119,135 +1204,162 @@ async function startCamera(
 
 
         if (!localStream) {
-
             localStream =
                 new MediaStream();
-
         }
 
 
-        stream
+        const videoTrack =
+            stream.getVideoTracks()[0];
+
+
+        // إزالة فيديو قديم من localStream
+        localStream
             .getVideoTracks()
             .forEach(track => {
 
-                localStream.addTrack(
+                localStream.removeTrack(
                     track
                 );
 
-                Object.values(peers)
-                    .forEach(pc => {
-
-                        pc.addTrack(
-                            track,
-                            localStream
-                        );
-
-                    });
-
+                track.stop();
             });
 
 
-        const card =
-            document.querySelector(
-                ".local-card"
-            );
-
-        if (!card) return;
-
-
-        const placeholder =
-            card.querySelector(
-                ".video-placeholder"
-            );
-
-        if (!placeholder) return;
-
-
-        placeholder.innerHTML =
-            "";
-
-
-        const video =
-            document.createElement(
-                "video"
-            );
-
-
-        video.autoplay =
-            true;
-
-        video.muted =
-            true;
-
-        video.playsInline =
-            true;
-
-        video.srcObject =
-            stream;
-
-
-        video.style.width =
-            "100%";
-
-        video.style.height =
-            "100%";
-
-        video.style.objectFit =
-            "cover";
-
-
-        video.style.transform =
-            facingMode === "user"
-                ? "scaleX(-1)"
-                : "scaleX(1)";
-
-
-        placeholder.appendChild(
-            video
+        localStream.addTrack(
+            videoTrack
         );
 
 
-        const button =
-            document.getElementById(
-                "cameraButton"
-            );
+        // إضافة أو تحديث الفيديو في الاتصالات
+        Object.values(peers)
+            .forEach(pc => {
+
+                const sender =
+                    pc.getSenders()
+                        .find(
+                            s =>
+                                s.track &&
+                                s.track.kind ===
+                                "video"
+                        );
 
 
-        button.classList.remove(
-            "off"
+                if (sender) {
+
+                    sender.replaceTrack(
+                        videoTrack
+                    );
+
+                } else {
+
+                    pc.addTrack(
+                        videoTrack,
+                        localStream
+                    );
+                }
+            });
+
+
+        showLocalCamera(
+            stream,
+            facingMode
         );
 
 
-        button.querySelector(
-            "small"
-        ).textContent =
-            t("cameraOn");
+        updateCameraButton();
 
 
         showToast(
-
             facingMode === "user"
                 ? t("frontCamera")
                 : t("backCamera")
-
         );
 
     } catch (error) {
 
-        console.log(error);
+        console.error(
+            "Camera error:",
+            error
+        );
 
         showToast(
             t("cameraPermission")
         );
-
     }
-
 }
 
 
-// ==============================
+// ======================================================
+// عرض الكاميرا المحلية
+// ======================================================
+
+function showLocalCamera(
+    stream,
+    facingMode
+) {
+
+    const card =
+        document.querySelector(
+            ".local-card"
+        );
+
+    if (!card) return;
+
+
+    const placeholder =
+        card.querySelector(
+            ".video-placeholder"
+        );
+
+    if (!placeholder) return;
+
+
+    placeholder.innerHTML = "";
+
+
+    const video =
+        document.createElement(
+            "video"
+        );
+
+
+    video.autoplay = true;
+    video.muted = true;
+    video.playsInline = true;
+
+    video.srcObject =
+        stream;
+
+
+    video.style.width =
+        "100%";
+
+    video.style.height =
+        "100%";
+
+    video.style.objectFit =
+        "cover";
+
+
+    // الأمامية تكون معكوسة
+    // الخلفية تكون طبيعية
+
+    video.style.transform =
+        facingMode === "user"
+            ? "scaleX(-1)"
+            : "scaleX(1)";
+
+
+    placeholder.appendChild(
+        video
+    );
+}
+
+
+// ======================================================
 // إيقاف الكاميرا
-// ==============================
+// ======================================================
 
 function stopCamera() {
 
@@ -1255,19 +1367,11 @@ function stopCamera() {
 
         cameraStream
             .getTracks()
-            .forEach(track => {
+            .forEach(track =>
+                track.stop()
+            );
 
-                track.stop();
-
-                removeTrackFromPeers(
-                    track
-                );
-
-            });
-
-        cameraStream =
-            null;
-
+        cameraStream = null;
     }
 
 
@@ -1277,11 +1381,35 @@ function stopCamera() {
             .getVideoTracks()
             .forEach(track => {
 
-                track.enabled =
-                    false;
+                const senderTrack =
+                    track;
 
+                Object.values(peers)
+                    .forEach(pc => {
+
+                        const sender =
+                            pc.getSenders()
+                                .find(
+                                    s =>
+                                        s.track ===
+                                        senderTrack
+                                );
+
+                        if (sender) {
+
+                            try {
+                                sender.replaceTrack(
+                                    null
+                                );
+                            } catch {}
+                        }
+                    });
+
+
+                localStream.removeTrack(
+                    track
+                );
             });
-
     }
 
 
@@ -1305,12 +1433,16 @@ function stopCamera() {
 
         if (placeholder) {
 
+            const firstLetter =
+                currentName
+                    .charAt(0)
+                    .toUpperCase();
+
+
             placeholder.innerHTML = `
 
                 <div class="avatar">
-                    ${currentName
-                        .charAt(0)
-                        .toUpperCase()}
+                    ${firstLetter}
                 </div>
 
                 <div class="camera-off">
@@ -1318,78 +1450,81 @@ function stopCamera() {
                 </div>
 
             `;
-
         }
-
     }
 
+
+    updateCameraButton();
+
+    showToast(
+        t("cameraStopped")
+    );
+}
+
+
+function updateCameraButton() {
 
     const button =
         document.getElementById(
             "cameraButton"
         );
 
+    if (!button) return;
 
-    if (button) {
+
+    const small =
+        button.querySelector(
+            "small"
+        );
+
+
+    if (cameraEnabled) {
+
+        button.classList.remove(
+            "off"
+        );
+
+        if (small) {
+            small.textContent =
+                t("cameraOn");
+        }
+
+    } else {
 
         button.classList.add(
             "off"
         );
 
-        button.querySelector(
-            "small"
-        ).textContent =
-            t("cameraButton");
-
+        if (small) {
+            small.textContent =
+                t("cameraButton");
+        }
     }
-
-
-    showToast(
-        t("cameraStopped")
-    );
-
 }
 
 
-// ==============================
-// إزالة Track من الاتصالات
-// ==============================
+// ======================================================
+// تبديل الكاميرا
+// ======================================================
 
-function removeTrackFromPeers(
-    track
-) {
+async function switchCamera() {
 
-    Object.values(peers)
-        .forEach(pc => {
+    cameraFacing =
+        cameraFacing === "user"
+            ? "environment"
+            : "user";
 
-            const sender =
-                pc.getSenders()
-                    .find(
-                        s =>
-                            s.track ===
-                            track
-                    );
 
-            if (sender) {
+    if (cameraEnabled) {
 
-                pc.removeTrack(
-                    sender
-                );
-
-            }
-
-        });
-
+        await startCamera(
+            cameraFacing
+        );
+    }
 }
 
 
-// ==============================
-// الكاميرا الأمامية / الخلفية
-// ==============================
-
-let lastCameraClick = 0;
-
-
+// الضغط مرتين على زر الكاميرا
 document.addEventListener(
     "DOMContentLoaded",
     () => {
@@ -1399,50 +1534,25 @@ document.addEventListener(
                 "cameraButton"
             );
 
-
         if (!cameraButton) return;
 
 
         cameraButton.addEventListener(
             "dblclick",
-            async () => {
+            async event => {
 
-                if (!cameraEnabled) {
+                event.preventDefault();
 
-                    await startCamera(
-                        cameraFacing
-                    );
-
-                    return;
-
-                }
-
-
-                cameraFacing =
-                    cameraFacing ===
-                    "user"
-
-                        ? "environment"
-
-                        : "user";
-
-
-                stopCamera();
-
-                await startCamera(
-                    cameraFacing
-                );
-
+                await switchCamera();
             }
         );
-
     }
 );
 
 
-// ==============================
-// مشاركة الشاشة الحقيقية
-// ==============================
+// ======================================================
+// مشاركة الشاشة
+// ======================================================
 
 async function shareScreen() {
 
@@ -1456,7 +1566,14 @@ async function shareScreen() {
         );
 
         return;
+    }
 
+
+    if (screenStream) {
+
+        await stopScreenShare();
+
+        return;
     }
 
 
@@ -1466,13 +1583,8 @@ async function shareScreen() {
             await navigator.mediaDevices
                 .getDisplayMedia({
 
-                    video: {
-
-                        cursor: "always"
-
-                    },
-
-                    audio: true
+                    video: true,
+                    audio: false
 
                 });
 
@@ -1480,6 +1592,13 @@ async function shareScreen() {
         const screenTrack =
             screenStream
                 .getVideoTracks()[0];
+
+
+        if (!screenTrack) {
+            throw new Error(
+                "No screen track"
+            );
+        }
 
 
         // استبدال فيديو الكاميرا
@@ -1508,9 +1627,7 @@ async function shareScreen() {
                         screenTrack,
                         screenStream
                     );
-
                 }
-
             });
 
 
@@ -1524,16 +1641,10 @@ async function shareScreen() {
             socket.emit(
                 "screen-share-started",
                 {
-
-                    room:
-                        currentRoom,
-
-                    name:
-                        currentName
-
+                    room: currentRoom,
+                    name: currentName
                 }
             );
-
         }
 
 
@@ -1547,27 +1658,28 @@ async function shareScreen() {
             () => {
 
                 stopScreenShare();
-
             }
         );
 
-
     } catch (error) {
 
-        console.log(error);
+        console.error(
+            "Screen sharing error:",
+            error
+        );
+
+        screenStream = null;
 
         showToast(
             t("screenCancelled")
         );
-
     }
-
 }
 
 
-// ==============================
+// ======================================================
 // إيقاف مشاركة الشاشة
-// ==============================
+// ======================================================
 
 async function stopScreenShare() {
 
@@ -1579,8 +1691,11 @@ async function stopScreenShare() {
             .getVideoTracks()[0];
 
 
-    // إذا الكاميرا شغالة رجعها
-    if (cameraStream) {
+    // إذا الكاميرا شغالة رجع الكاميرا
+    if (
+        cameraStream &&
+        cameraEnabled
+    ) {
 
         const cameraTrack =
             cameraStream
@@ -1605,9 +1720,7 @@ async function stopScreenShare() {
                     sender.replaceTrack(
                         cameraTrack
                     );
-
                 }
-
             });
 
     } else {
@@ -1626,14 +1739,13 @@ async function stopScreenShare() {
 
                 if (sender) {
 
-                    sender.replaceTrack(
-                        null
-                    );
-
+                    try {
+                        sender.replaceTrack(
+                            null
+                        );
+                    } catch {}
                 }
-
             });
-
     }
 
 
@@ -1644,8 +1756,7 @@ async function stopScreenShare() {
         );
 
 
-    screenStream =
-        null;
+    screenStream = null;
 
 
     const preview =
@@ -1664,26 +1775,21 @@ async function stopScreenShare() {
         socket.emit(
             "screen-share-stopped",
             {
-
-                room:
-                    currentRoom
-
+                room: currentRoom
             }
         );
-
     }
 
 
     showToast(
         t("screenEnded")
     );
-
 }
 
 
-// ==============================
-// معاينة الشاشة عندك
-// ==============================
+// ======================================================
+// معاينة الشاشة
+// ======================================================
 
 function showLocalScreenPreview(
     stream
@@ -1749,19 +1855,17 @@ function showLocalScreenPreview(
         document.body.appendChild(
             video
         );
-
     }
 
 
     video.srcObject =
         stream;
-
 }
 
 
-// ==============================
-// عرض شخص متصل
-// ==============================
+// ======================================================
+// عرض الشخص المتصل
+// ======================================================
 
 function showRemoteUser(
     userId,
@@ -1769,23 +1873,36 @@ function showRemoteUser(
     stream
 ) {
 
-    let video =
+    let card =
         document.getElementById(
-            "remote-" + userId
+            "remote-card-" +
+            userId
         );
 
 
-    if (!video) {
+    if (!card) {
 
-        video =
+        card =
+            document.createElement(
+                "div"
+            );
+
+        card.id =
+            "remote-card-" +
+            userId;
+
+        card.className =
+            "person-card remote-card";
+
+
+        const video =
             document.createElement(
                 "video"
             );
 
-
         video.id =
-            "remote-" + userId;
-
+            "remote-" +
+            userId;
 
         video.autoplay =
             true;
@@ -1797,6 +1914,22 @@ function showRemoteUser(
             false;
 
 
+        const videoBox =
+            document.createElement(
+                "div"
+            );
+
+        videoBox.className =
+            "video-placeholder";
+
+
+        videoBox.style.padding =
+            "0";
+
+        videoBox.style.overflow =
+            "hidden";
+
+
         video.style.width =
             "100%";
 
@@ -1806,122 +1939,119 @@ function showRemoteUser(
         video.style.objectFit =
             "cover";
 
-        video.style.background =
-            "#090909";
 
-        video.style.borderRadius =
-            "20px";
-
-
-        const container =
-            document.createElement(
-                "div"
-            );
-
-
-        container.id =
-            "remote-card-" +
-            userId;
-
-
-        container.style.position =
-            "relative";
-
-        container.style.minHeight =
-            "180px";
-
-        container.style.borderRadius =
-            "20px";
-
-        container.style.overflow =
-            "hidden";
-
-        container.style.background =
-            "#090909";
-
-        container.style.border =
-            "1px solid rgba(255,255,255,.08)";
-
-
-        const name =
-            document.createElement(
-                "div"
-            );
-
-
-        name.textContent =
-            userName;
-
-
-        name.style.position =
-            "absolute";
-
-        name.style.left =
-            "14px";
-
-        name.style.bottom =
-            "14px";
-
-        name.style.zIndex =
-            "5";
-
-        name.style.padding =
-            "7px 12px";
-
-        name.style.borderRadius =
-            "12px";
-
-        name.style.background =
-            "rgba(0,0,0,.6)";
-
-        name.style.color =
-            "#fff";
-
-        name.style.fontSize =
-            "13px";
-
-
-        container.appendChild(
+        videoBox.appendChild(
             video
         );
 
-        container.appendChild(
-            name
+
+        const info =
+            document.createElement(
+                "div"
+            );
+
+        info.className =
+            "person-info";
+
+
+        info.innerHTML = `
+
+            <div>
+                <strong>
+                    ${escapeHTML(userName || "صديق")}
+                </strong>
+
+                <span>
+                    متصل
+                </span>
+            </div>
+
+            <div class="person-icons">
+                <span>🎙</span>
+                <span>📹</span>
+            </div>
+
+        `;
+
+
+        card.appendChild(
+            videoBox
+        );
+
+        card.appendChild(
+            info
         );
 
 
-        const grid =
-            document.querySelector(
-                ".participants-grid"
+        const participants =
+            document.getElementById(
+                "participants"
             );
 
 
-        if (grid) {
+        if (participants) {
 
-            grid.appendChild(
-                container
+            participants.appendChild(
+                card
             );
 
         } else {
 
             document.body.appendChild(
-                container
+                card
             );
-
         }
-
     }
 
 
-    video.srcObject =
-        stream;
+    const video =
+        document.getElementById(
+            "remote-" +
+            userId
+        );
 
+
+    if (video) {
+
+        video.srcObject =
+            stream;
+    }
+
+
+    const empty =
+        document.getElementById(
+            "emptyMessage"
+        );
+
+
+    if (empty) {
+        empty.style.display =
+            "none";
+    }
+
+
+    updateRoomStatus();
 }
 
 
-// ==============================
+// ======================================================
+// حماية اسم المستخدم
+// ======================================================
+
+function escapeHTML(value) {
+
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+
+// ======================================================
 // إزالة شخص
-// ==============================
+// ======================================================
 
 function removeRemoteUser(
     userId
@@ -1933,16 +2063,15 @@ function removeRemoteUser(
 
     if (pc) {
 
-        pc.close();
+        try {
+            pc.close();
+        } catch {}
 
         delete peers[userId];
-
     }
 
 
-    delete remoteStreams[
-        userId
-    ];
+    delete remoteUsers[userId];
 
 
     const card =
@@ -1953,17 +2082,67 @@ function removeRemoteUser(
 
 
     if (card) {
-
         card.remove();
-
     }
 
+
+    const remaining =
+        Object.keys(
+            remoteUsers
+        ).length;
+
+
+    const empty =
+        document.getElementById(
+            "emptyMessage"
+        );
+
+
+    if (
+        empty &&
+        remaining === 0
+    ) {
+
+        empty.style.display =
+            "";
+    }
+
+
+    updateRoomStatus();
 }
 
 
-// ==============================
+// ======================================================
+// حالة الغرفة
+// ======================================================
+
+function updateRoomStatus() {
+
+    const status =
+        document.getElementById(
+            "roomStatus"
+        );
+
+
+    if (!status) return;
+
+
+    const count =
+        Object.keys(
+            remoteUsers
+        ).length;
+
+
+    status.textContent =
+        count > 0
+            ? t("connected")
+            : t("waiting");
+}
+
+
+// ======================================================
 // نسخ رقم الغرفة
-// ==============================
+// ======================================================
 
 async function copyRoomCode() {
 
@@ -1972,10 +2151,9 @@ async function copyRoomCode() {
 
     try {
 
-        await navigator.clipboard
-            .writeText(
-                currentRoom
-            );
+        await navigator.clipboard.writeText(
+            currentRoom
+        );
 
         showToast(
             t("copied")
@@ -1986,22 +2164,19 @@ async function copyRoomCode() {
         showToast(
             currentRoom
         );
-
     }
-
 }
 
 
-// ==============================
+// ======================================================
 // مغادرة الغرفة
-// ==============================
+// ======================================================
 
-function leaveRoom() {
+async function leaveRoom() {
 
     if (screenStream) {
 
-        stopScreenShare();
-
+        await stopScreenShare();
     }
 
 
@@ -2013,6 +2188,7 @@ function leaveRoom() {
                 track.stop()
             );
 
+        cameraStream = null;
     }
 
 
@@ -2024,13 +2200,17 @@ function leaveRoom() {
                 track.stop()
             );
 
+        localStream = null;
     }
 
 
     Object.values(peers)
-        .forEach(pc =>
-            pc.close()
-        );
+        .forEach(pc => {
+
+            try {
+                pc.close();
+            } catch {}
+        });
 
 
     Object.keys(peers)
@@ -2039,12 +2219,17 @@ function leaveRoom() {
         );
 
 
+    Object.keys(remoteUsers)
+        .forEach(id =>
+            delete remoteUsers[id]
+        );
+
+
     if (socket) {
 
         socket.disconnect();
 
         socket = null;
-
     }
 
 
@@ -2057,11 +2242,22 @@ function leaveRoom() {
         );
 
 
-    cameraStream =
-        null;
+    const preview =
+        document.getElementById(
+            "waslScreenPreview"
+        );
 
-    localStream =
-        null;
+
+    if (preview) {
+        preview.remove();
+    }
+
+
+    cameraEnabled =
+        false;
+
+    micEnabled =
+        true;
 
     screenStream =
         null;
@@ -2070,19 +2266,20 @@ function leaveRoom() {
         null;
 
 
-    openScreen("home");
+    updateCameraButton();
+    updateMicButton();
 
+    openScreen("home");
 
     showToast(
         t("leftRoom")
     );
-
 }
 
 
-// ==============================
+// ======================================================
 // المظهر
-// ==============================
+// ======================================================
 
 function setTheme(theme) {
 
@@ -2092,65 +2289,45 @@ function setTheme(theme) {
 
     if (theme === "light") {
 
-        document.body
-            .classList.add(
-                "light"
-            );
+        document.body.classList.add(
+            "light"
+        );
 
 
         document
-            .getElementById(
-                "lightChoice"
-            )
-            ?.classList.add(
-                "active"
-            );
+            .getElementById("lightChoice")
+            ?.classList.add("active");
 
 
         document
-            .getElementById(
-                "darkChoice"
-            )
-            ?.classList.remove(
-                "active"
-            );
+            .getElementById("darkChoice")
+            ?.classList.remove("active");
 
 
         showToast(
             t("lightActivated")
         );
 
-
     } else {
 
-        document.body
-            .classList.remove(
-                "light"
-            );
+        document.body.classList.remove(
+            "light"
+        );
 
 
         document
-            .getElementById(
-                "darkChoice"
-            )
-            ?.classList.add(
-                "active"
-            );
+            .getElementById("darkChoice")
+            ?.classList.add("active");
 
 
         document
-            .getElementById(
-                "lightChoice"
-            )
-            ?.classList.remove(
-                "active"
-            );
+            .getElementById("lightChoice")
+            ?.classList.remove("active");
 
 
         showToast(
             t("darkActivated")
         );
-
     }
 
 
@@ -2158,13 +2335,12 @@ function setTheme(theme) {
         "wasl-theme",
         theme
     );
-
 }
 
 
-// ==============================
+// ======================================================
 // اللغة
-// ==============================
+// ======================================================
 
 function setLanguage(
     language
@@ -2176,7 +2352,6 @@ function setLanguage(
 
     document.documentElement.lang =
         language;
-
 
     document.documentElement.dir =
         language === "ar"
@@ -2211,13 +2386,12 @@ function setLanguage(
         "wasl-language",
         language
     );
-
 }
 
 
-// ==============================
+// ======================================================
 // تطبيق اللغة
-// ==============================
+// ======================================================
 
 function applyLanguage() {
 
@@ -2315,7 +2489,6 @@ function applyLanguage() {
 
         ".settings-heading p":
             "settingsText"
-
     };
 
 
@@ -2343,9 +2516,7 @@ function applyLanguage() {
 
                     element.textContent =
                         t(key);
-
                 }
-
             }
         );
 
@@ -2366,20 +2537,18 @@ function applyLanguage() {
             first.textContent =
                 t("heroTitle1") +
                 "\n";
-
         }
-
     }
 
 
     updateMicButton();
-
+    updateCameraButton();
 }
 
 
-// ==============================
+// ======================================================
 // اختبار المايك
-// ==============================
+// ======================================================
 
 async function testMicrophone() {
 
@@ -2388,9 +2557,7 @@ async function testMicrophone() {
         const stream =
             await navigator.mediaDevices
                 .getUserMedia({
-
                     audio: true
-
                 });
 
 
@@ -2405,21 +2572,20 @@ async function testMicrophone() {
             t("micWorking")
         );
 
+    } catch (error) {
 
-    } catch {
+        console.error(error);
 
         showToast(
             t("micPermission")
         );
-
     }
-
 }
 
 
-// ==============================
+// ======================================================
 // اختبار الكاميرا
-// ==============================
+// ======================================================
 
 async function testCamera() {
 
@@ -2428,9 +2594,7 @@ async function testCamera() {
         const stream =
             await navigator.mediaDevices
                 .getUserMedia({
-
                     video: true
-
                 });
 
 
@@ -2445,21 +2609,20 @@ async function testCamera() {
             t("cameraWorking")
         );
 
+    } catch (error) {
 
-    } catch {
+        console.error(error);
 
         showToast(
             t("cameraPermission2")
         );
-
     }
-
 }
 
 
-// ==============================
+// ======================================================
 // تحميل الإعدادات
-// ==============================
+// ======================================================
 
 window.addEventListener(
     "load",
@@ -2478,18 +2641,14 @@ window.addEventListener(
 
 
         if (savedTheme) {
-
             currentTheme =
                 savedTheme;
-
         }
 
 
         if (savedLanguage) {
-
             currentLanguage =
                 savedLanguage;
-
         }
 
 
@@ -2503,7 +2662,82 @@ window.addEventListener(
                 : "ltr";
 
 
+        setThemeWithoutToast(
+            currentTheme
+        );
+
+
+        updateLanguageChoices();
+
         applyLanguage();
 
+        updateMicButton();
+        updateCameraButton();
     }
 );
+
+
+// ======================================================
+// تطبيق المظهر بدون إشعار
+// ======================================================
+
+function setThemeWithoutToast(
+    theme
+) {
+
+    if (theme === "light") {
+
+        document.body.classList.add(
+            "light"
+        );
+
+    } else {
+
+        document.body.classList.remove(
+            "light"
+        );
+    }
+
+
+    document
+        .getElementById("lightChoice")
+        ?.classList.toggle(
+            "active",
+            theme === "light"
+        );
+
+
+    document
+        .getElementById("darkChoice")
+        ?.classList.toggle(
+            "active",
+            theme === "dark"
+        );
+}
+
+
+// ======================================================
+// تحديث أزرار اللغة
+// ======================================================
+
+function updateLanguageChoices() {
+
+    document
+        .getElementById(
+            "arabicChoice"
+        )
+        ?.classList.toggle(
+            "active",
+            currentLanguage === "ar"
+        );
+
+
+    document
+        .getElementById(
+            "englishChoice"
+        )
+        ?.classList.toggle(
+            "active",
+            currentLanguage === "en"
+        );
+}
