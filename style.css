@@ -1,0 +1,824 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --bg: #07090d;
+    --surface: #0d1118;
+    --surface-2: #121821;
+    --border: rgba(255,255,255,.08);
+    --text: #ffffff;
+    --muted: #8c96a5;
+    --accent: #8d7cff;
+    --accent-2: #6556e8;
+    --danger: #ff5364;
+    --success: #55d99b;
+}
+
+body.light {
+    --bg: #f4f6fa;
+    --surface: #ffffff;
+    --surface-2: #edf0f5;
+    --border: rgba(0,0,0,.08);
+    --text: #151922;
+    --muted: #6f7785;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: .3s;
+}
+
+button,
+input {
+    font: inherit;
+}
+
+button {
+    border: 0;
+    cursor: pointer;
+}
+
+.app {
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at 15% 15%, rgba(111,92,255,.12), transparent 30%),
+        radial-gradient(circle at 90% 80%, rgba(0,214,255,.06), transparent 30%),
+        var(--bg);
+}
+
+
+/* الشاشات */
+
+.screen {
+    display: none;
+    min-height: 100vh;
+}
+
+.screen.active {
+    display: block;
+}
+
+
+/* الصفحة الرئيسية */
+
+.topbar {
+    height: 90px;
+    padding: 0 7%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+}
+
+.brand-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, var(--accent), #4b3bc6);
+    box-shadow: 0 10px 35px rgba(116,97,255,.3);
+    font-size: 23px;
+    font-weight: 900;
+}
+
+.brand h1 {
+    font-size: 21px;
+}
+
+.brand span {
+    display: block;
+    color: var(--muted);
+    font-size: 11px;
+    margin-top: 2px;
+}
+
+.icon-button {
+    width: 45px;
+    height: 45px;
+    border-radius: 14px;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    transition: .2s;
+}
+
+.icon-button:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+}
+
+
+.hero {
+    width: min(900px, 90%);
+    margin: 80px auto 0;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+}
+
+.hero-badge {
+    display: inline-flex;
+    padding: 9px 15px;
+    border-radius: 50px;
+    background: rgba(84,214,154,.08);
+    border: 1px solid rgba(84,214,154,.15);
+    color: var(--success);
+    font-size: 12px;
+    margin-bottom: 25px;
+}
+
+.hero h2 {
+    font-size: clamp(44px, 7vw, 82px);
+    line-height: 1.02;
+    letter-spacing: -3px;
+}
+
+.hero h2 span {
+    background: linear-gradient(90deg, #fff, #9184ff);
+    -webkit-background-clip: text;
+    color: transparent;
+}
+
+.hero p {
+    width: min(570px, 90%);
+    margin: 25px auto;
+    color: var(--muted);
+    font-size: 16px;
+    line-height: 1.9;
+}
+
+.home-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 35px;
+}
+
+.primary-button,
+.secondary-button {
+    min-height: 55px;
+    padding: 0 25px;
+    border-radius: 16px;
+    transition: .25s;
+    font-weight: 700;
+}
+
+.primary-button {
+    color: white;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    box-shadow: 0 15px 40px rgba(105,87,245,.22);
+}
+
+.secondary-button {
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border);
+}
+
+.primary-button:hover,
+.secondary-button:hover {
+    transform: translateY(-3px);
+}
+
+.primary-button span,
+.secondary-button span {
+    margin-right: 12px;
+}
+
+.full {
+    width: 100%;
+}
+
+.features {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 70px;
+}
+
+.features div {
+    min-width: 120px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,.025);
+    border-radius: 17px;
+}
+
+.features b {
+    display: block;
+    font-size: 20px;
+    margin-bottom: 7px;
+}
+
+.features span {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+
+/* الإضاءة */
+
+.glow {
+    position: fixed;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    filter: blur(100px);
+    pointer-events: none;
+}
+
+.glow-one {
+    background: rgba(109,87,255,.09);
+    top: 10%;
+    left: -200px;
+}
+
+.glow-two {
+    background: rgba(0,170,255,.06);
+    bottom: -150px;
+    right: -150px;
+}
+
+
+/* النوافذ */
+
+.modal {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0,0,0,.68);
+    backdrop-filter: blur(15px);
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-card {
+    width: min(430px, 100%);
+    padding: 32px;
+    border-radius: 26px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: 0 35px 100px rgba(0,0,0,.4);
+    position: relative;
+    animation: modalIn .25s ease;
+}
+
+@keyframes modalIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.close {
+    position: absolute;
+    top: 18px;
+    left: 18px;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    color: var(--muted);
+    background: var(--surface-2);
+    font-size: 22px;
+}
+
+.modal-icon {
+    width: 52px;
+    height: 52px;
+    display: grid;
+    place-items: center;
+    border-radius: 16px;
+    background: rgba(120,101,255,.12);
+    color: var(--accent);
+    font-size: 22px;
+    margin-bottom: 18px;
+}
+
+.modal-card h3 {
+    font-size: 26px;
+    margin-bottom: 7px;
+}
+
+.modal-card p {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.8;
+    margin-bottom: 25px;
+}
+
+.modal-card label {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    margin: 15px 0 7px;
+}
+
+.modal-card input {
+    width: 100%;
+    height: 52px;
+    padding: 0 15px;
+    border-radius: 14px;
+    outline: none;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    color: var(--text);
+}
+
+.modal-card input:focus {
+    border-color: var(--accent);
+}
+
+.room-input {
+    text-align: center;
+    font-size: 27px !important;
+    font-weight: 800;
+    letter-spacing: 9px;
+}
+
+
+/* الغرفة */
+
+.room-screen {
+    padding-bottom: 110px;
+}
+
+.room-topbar {
+    height: 85px;
+    padding: 0 4%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(7,9,13,.72);
+    backdrop-filter: blur(20px);
+}
+
+body.light .room-topbar {
+    background: rgba(244,246,250,.8);
+}
+
+.room-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.back-button {
+    width: 42px;
+    height: 42px;
+    border-radius: 13px;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+.room-brand strong {
+    display: block;
+}
+
+.room-brand span {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.room-code-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 14px;
+}
+
+.room-code-box span {
+    color: var(--muted);
+    font-size: 10px;
+}
+
+.room-code-box strong {
+    letter-spacing: 4px;
+}
+
+.room-code-box button {
+    color: var(--accent);
+    background: transparent;
+    font-size: 11px;
+}
+
+.room-content {
+    width: min(1200px, 94%);
+    margin: 35px auto;
+}
+
+.room-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.small-label {
+    color: var(--accent);
+    font-size: 11px;
+}
+
+.room-title h2 {
+    font-size: 25px;
+    margin-top: 5px;
+}
+
+.connection {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: var(--success);
+    font-size: 12px;
+}
+
+.connection i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 12px var(--success);
+}
+
+
+.participants {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.person-card {
+    min-height: 250px;
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    overflow: hidden;
+    background: var(--surface);
+    box-shadow: 0 15px 50px rgba(0,0,0,.08);
+}
+
+.video-placeholder {
+    height: 195px;
+    display: grid;
+    place-items: center;
+    position: relative;
+    background:
+        radial-gradient(circle, rgba(121,101,255,.14), transparent 35%),
+        var(--surface-2);
+}
+
+.avatar {
+    width: 70px;
+    height: 70px;
+    display: grid;
+    place-items: center;
+    border-radius: 22px;
+    background: linear-gradient(135deg, var(--accent), #4937c5);
+    font-size: 30px;
+    font-weight: 800;
+}
+
+.camera-off {
+    position: absolute;
+    bottom: 10px;
+    right: 12px;
+    color: var(--muted);
+    font-size: 10px;
+}
+
+.person-info {
+    height: 55px;
+    padding: 0 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.person-info strong {
+    display: block;
+    font-size: 13px;
+}
+
+.person-info span {
+    color: var(--muted);
+    font-size: 10px;
+}
+
+.person-icons {
+    display: flex;
+    gap: 8px;
+}
+
+.empty-message {
+    text-align: center;
+    margin-top: 45px;
+}
+
+.empty-icon {
+    font-size: 35px;
+    color: var(--accent);
+    margin-bottom: 10px;
+}
+
+.empty-message h3 {
+    margin-bottom: 6px;
+}
+
+.empty-message p {
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 18px;
+}
+
+
+/* التحكم */
+
+.call-controls {
+    position: fixed;
+    z-index: 20;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px;
+    background: rgba(13,17,24,.92);
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 20px 70px rgba(0,0,0,.35);
+}
+
+.control {
+    width: 75px;
+    height: 65px;
+    border-radius: 16px;
+    background: var(--surface-2);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    transition: .2s;
+}
+
+.control:hover {
+    transform: translateY(-3px);
+}
+
+.control span {
+    font-size: 18px;
+}
+
+.control small {
+    color: var(--muted);
+    font-size: 9px;
+}
+
+.control.danger {
+    background: rgba(255,83,100,.12);
+    color: var(--danger);
+}
+
+.control.off {
+    background: rgba(255,83,100,.16);
+}
+
+
+/* الإعدادات */
+
+.settings-card {
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.settings-heading {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.settings-heading .modal-icon {
+    margin: 0;
+}
+
+.settings-heading h3 {
+    margin: 0;
+}
+
+.settings-heading p {
+    margin: 3px 0 0;
+}
+
+.setting-section {
+    margin-top: 27px;
+}
+
+.setting-title {
+    display: block;
+    color: var(--muted);
+    font-size: 11px;
+    margin-bottom: 10px;
+}
+
+.choice-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+}
+
+.choice {
+    height: 62px;
+    border-radius: 15px;
+    background: var(--surface-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+}
+
+.choice.active {
+    border-color: var(--accent);
+    box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.device-row {
+    width: 100%;
+    min-height: 62px;
+    padding: 0 15px;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    color: var(--text);
+    background: var(--surface-2);
+    border-radius: 15px;
+    margin-bottom: 8px;
+    text-align: right;
+}
+
+.device-row > span {
+    font-size: 20px;
+}
+
+.device-row div {
+    flex: 1;
+}
+
+.device-row strong,
+.device-row small {
+    display: block;
+}
+
+.device-row small {
+    color: var(--muted);
+    font-size: 10px;
+    margin-top: 3px;
+}
+
+.device-row b {
+    color: var(--muted);
+}
+
+
+/* التنبيه */
+
+.toast {
+    position: fixed;
+    z-index: 100;
+    bottom: 25px;
+    right: 25px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 18px;
+    border-radius: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: 0 20px 50px rgba(0,0,0,.25);
+    transform: translateY(100px);
+    opacity: 0;
+    transition: .3s;
+}
+
+.toast.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.toast span {
+    color: var(--success);
+}
+
+.toast p {
+    font-size: 12px;
+}
+
+
+/* الجوال */
+
+@media (max-width: 700px) {
+
+    .topbar {
+        padding: 0 5%;
+    }
+
+    .hero {
+        margin-top: 55px;
+    }
+
+    .hero h2 {
+        font-size: 48px;
+        letter-spacing: -2px;
+    }
+
+    .hero p {
+        font-size: 13px;
+    }
+
+    .home-actions {
+        flex-direction: column;
+        width: min(360px, 100%);
+        margin-inline: auto;
+    }
+
+    .features {
+        gap: 6px;
+        margin-top: 45px;
+    }
+
+    .features div {
+        min-width: 0;
+        flex: 1;
+        padding: 12px 5px;
+    }
+
+    .room-topbar {
+        padding: 0 4%;
+    }
+
+    .room-code-box span {
+        display: none;
+    }
+
+    .room-code-box {
+        margin-right: auto;
+    }
+
+    .participants {
+        grid-template-columns: 1fr;
+    }
+
+    .person-card {
+        min-height: 220px;
+    }
+
+    .video-placeholder {
+        height: 165px;
+    }
+
+    .call-controls {
+        bottom: 10px;
+        width: calc(100% - 18px);
+        justify-content: center;
+    }
+
+    .control {
+        width: 22%;
+        min-width: 65px;
+    }
+
+    .room-screen {
+        padding-bottom: 110px;
+    }
+}
